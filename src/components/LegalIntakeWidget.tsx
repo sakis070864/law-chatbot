@@ -254,8 +254,7 @@ IMPORTANT RULES:
   // ── MAIN WIDGET (Full Screen) ──
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center" style={{ background: 'transparent' }}>
-      <div className="legal-intake-widget w-[420px] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col font-sans" style={{ height: '620px' }}>
+      <div className="legal-intake-widget w-[420px] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col font-sans" style={{ height: '620px', margin: 0 }}>
       {/* ── Header ── */}
       <div className="bg-gradient-to-r from-slate-900 to-blue-900 p-4 text-white shrink-0 flex justify-between items-center">
         <div>
@@ -566,7 +565,6 @@ IMPORTANT RULES:
           </button>
         </div>
       )}
-    </div>
     </div>
   );
 }
