@@ -2,9 +2,10 @@ import LegalIntakeWidget from "@/components/LegalIntakeWidget";
 
 export default function Home() {
   return (
-    <>
-      {/* Standalone Widget — no demo site wrapper */}
-      <LegalIntakeWidget />
-    </>
+    <main className="fixed inset-0 flex items-center justify-center w-full h-full pointer-events-none">
+      <div className="pointer-events-auto">
+        <LegalIntakeWidget />
+      </div>
+    </main>
   );
 }
