@@ -254,8 +254,7 @@ IMPORTANT RULES:
   // ── MAIN WIDGET (Full Screen) ──
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-100 to-blue-50 flex items-center justify-center p-4 font-sans">
-      <div className="legal-intake-widget w-full max-w-[440px] h-[650px] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col">
+      <div className="legal-intake-widget w-full max-w-[440px] mx-auto bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col font-sans" style={{ height: '650px' }}>
       {/* ── Header ── */}
       <div className="bg-gradient-to-r from-slate-900 to-blue-900 p-4 text-white shrink-0">
         <h2 className="text-lg font-semibold tracking-tight">Legal Consultation</h2>
@@ -559,7 +558,6 @@ IMPORTANT RULES:
           </button>
         </div>
       )}
-    </div>
     </div>
   );
 }
