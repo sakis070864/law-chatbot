@@ -254,11 +254,18 @@ IMPORTANT RULES:
   // ── MAIN WIDGET (Full Screen) ──
 
   return (
-      <div className="legal-intake-widget w-full max-w-[440px] mx-auto bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col font-sans" style={{ height: '650px' }}>
+      <div className="legal-intake-widget w-full h-screen bg-white overflow-hidden flex flex-col font-sans">
       {/* ── Header ── */}
-      <div className="bg-gradient-to-r from-slate-900 to-blue-900 p-4 text-white shrink-0">
-        <h2 className="text-lg font-semibold tracking-tight">Legal Consultation</h2>
-        <p className="text-blue-300 text-xs">AI-Powered Intake Assistant</p>
+      <div className="bg-gradient-to-r from-slate-900 to-blue-900 p-4 text-white shrink-0 flex justify-between items-center">
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight">Legal Consultation</h2>
+          <p className="text-blue-300 text-xs">AI-Powered Intake Assistant</p>
+        </div>
+        <button onClick={() => window.parent.postMessage('close-widget', '*')} className="text-blue-300 hover:text-white transition-colors p-1">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       {/* ── FORM SCREEN ── */}
