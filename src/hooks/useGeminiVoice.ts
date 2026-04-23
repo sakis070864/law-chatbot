@@ -18,66 +18,70 @@ export function useGeminiVoice({ systemPrompt, onTranscript, onEnd }: UseGeminiV
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const processorRef = useRef<ScriptProcessorNode | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
-  const audioQueueRef = useRef<ArrayBuffer[]>([]);
-  const isPlayingRef = useRef(false);
-  const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
+
+  // ── Gapless scheduled playback system ──
+  // Instead of playing chunks with onended callbacks (causes gaps),
+  // we schedule each chunk at an exact time using AudioContext.currentTime
+  const nextPlayTimeRef = useRef(0);
+  const scheduledSourcesRef = useRef<AudioBufferSourceNode[]>([]);
 
   // ── Stop all playback immediately (for barge-in/interruption) ──
   const stopPlayback = useCallback(() => {
-    // Stop current playing audio
-    try {
-      currentSourceRef.current?.stop();
-    } catch {
-      // ignore if already stopped
+    // Stop all scheduled sources
+    for (const src of scheduledSourcesRef.current) {
+      try { src.stop(); } catch { /* already stopped */ }
     }
-    currentSourceRef.current = null;
-    // Clear the queue
-    audioQueueRef.current = [];
-    isPlayingRef.current = false;
+    scheduledSourcesRef.current = [];
+    nextPlayTimeRef.current = 0;
   }, []);
 
-  // ── Play queued audio chunks ──
-  const playNextChunk = useCallback(() => {
-    const ctx = playContextRef.current;
-    if (!ctx || audioQueueRef.current.length === 0) {
-      isPlayingRef.current = false;
-      currentSourceRef.current = null;
-      return;
-    }
-    isPlayingRef.current = true;
-
-    const pcmData = audioQueueRef.current.shift()!;
-    const int16 = new Int16Array(pcmData);
-    const float32 = new Float32Array(int16.length);
-    for (let i = 0; i < int16.length; i++) {
-      float32[i] = int16[i] / 32768;
-    }
-
-    const buffer = ctx.createBuffer(1, float32.length, 24000);
-    buffer.getChannelData(0).set(float32);
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(ctx.destination);
-    source.onended = () => playNextChunk();
-    currentSourceRef.current = source;
-    source.start();
-  }, []);
-
+  // ── Schedule audio chunk for gapless playback ──
   const queueAudio = useCallback((base64Data: string) => {
+    const ctx = playContextRef.current;
+    if (!ctx) return;
+
     try {
       const binaryStr = atob(base64Data);
       const bytes = new Uint8Array(binaryStr.length);
       for (let i = 0; i < binaryStr.length; i++) {
         bytes[i] = binaryStr.charCodeAt(i);
       }
-      audioQueueRef.current.push(bytes.buffer);
-      if (!isPlayingRef.current) {
-        playNextChunk();
+
+      // Convert PCM int16 → float32
+      const int16 = new Int16Array(bytes.buffer);
+      const float32 = new Float32Array(int16.length);
+      for (let i = 0; i < int16.length; i++) {
+        float32[i] = int16[i] / 32768;
       }
+
+      // Create audio buffer
+      const buffer = ctx.createBuffer(1, float32.length, 24000);
+      buffer.getChannelData(0).set(float32);
+
+      // Schedule it at the exact next time slot (gapless)
+      const now = ctx.currentTime;
+      const startTime = Math.max(now, nextPlayTimeRef.current);
+
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+
+      // Clean up finished sources to prevent memory leak
+      source.onended = () => {
+        const idx = scheduledSourcesRef.current.indexOf(source);
+        if (idx !== -1) scheduledSourcesRef.current.splice(idx, 1);
+      };
+
+      source.start(startTime);
+      scheduledSourcesRef.current.push(source);
+
+      // Next chunk starts exactly when this one ends
+      nextPlayTimeRef.current = startTime + buffer.duration;
+
     } catch (e) {
       console.error("[Voice] Audio decode error:", e);
     }
-  }, [playNextChunk]);
+  }, []);
 
   // ── Connect to Gemini Live API ──
   const connect = useCallback(async () => {
@@ -126,7 +130,7 @@ export function useGeminiVoice({ systemPrompt, onTranscript, onEnd }: UseGeminiV
 
       ws.onmessage = async (event) => {
         try {
-          // Handle Blob/ArrayBuffer responses (official Google pattern)
+          // Handle Blob/ArrayBuffer responses
           let jsonStr: string;
           if (event.data instanceof Blob) {
             jsonStr = await event.data.text();
@@ -145,9 +149,8 @@ export function useGeminiVoice({ systemPrompt, onTranscript, onEnd }: UseGeminiV
           }
 
           // ── Handle interruption (barge-in) ──
-          // When the server detects user is speaking, it sends interrupted=true
           if (data.serverContent?.interrupted) {
-            console.log("[Voice] 🔇 Interrupted! User is speaking — stopping playback");
+            console.log("[Voice] 🔇 Interrupted — stopping playback");
             stopPlayback();
           }
 
@@ -163,7 +166,7 @@ export function useGeminiVoice({ systemPrompt, onTranscript, onEnd }: UseGeminiV
             }
           }
 
-          // Handle turn complete — model finished speaking
+          // Handle turn complete
           if (data.serverContent?.turnComplete) {
             console.log("[Voice] Model turn complete");
           }
@@ -259,8 +262,7 @@ export function useGeminiVoice({ systemPrompt, onTranscript, onEnd }: UseGeminiV
       };
 
       source.connect(processor);
-      // ⚠️ Connect to a MUTED gain node — NOT to ctx.destination
-      // This prevents mic audio from playing through speakers (echo/feedback)
+      // Connect to MUTED gain node — prevents mic echo through speakers
       const muteNode = ctx.createGain();
       muteNode.gain.value = 0;
       processor.connect(muteNode);

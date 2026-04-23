@@ -21,7 +21,10 @@ export async function POST(req: Request) {
     const isNearEnd = aiMessageCount >= totalQuestions - 2;
     const mustEnd = aiMessageCount >= totalQuestions + 3;
 
+    const today = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
     const systemPrompt = `You are Alex, a warm, professional, and highly skilled legal intake specialist at a top U.S. law firm. You are conducting an intake interview with a potential client.
+
+TODAY'S DATE: ${today}
 
 CLIENT INFO (ALREADY PROVIDED — DO NOT ask for these again):
 - Name: ${clientInfo.name}
