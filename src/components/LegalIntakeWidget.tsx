@@ -26,7 +26,6 @@ type WidgetScreen = "form" | "loading" | "chat" | "voice" | "summary" | "sent";
 
 export default function LegalIntakeWidget() {
   // Widget state
-  const [isOpen, setIsOpen] = useState(false);
   const [screen, setScreen] = useState<WidgetScreen>("form");
 
   // Form state
@@ -252,35 +251,16 @@ IMPORTANT RULES:
     setPracticeArea(PRACTICE_AREAS[0]);
   };
 
-  // ── FLOATING BUTTON ──
-  if (!isOpen) {
-    return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white p-4 rounded-full shadow-2xl transition-all duration-300 z-50 flex items-center justify-center animate-pulse hover:animate-none"
-        aria-label="Open Legal Intake"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-        </svg>
-      </button>
-    );
-  }
+  // ── MAIN WIDGET (Full Screen) ──
 
-  // ── MAIN WIDGET ──
   return (
-    <div className="legal-intake-widget fixed bottom-6 right-6 w-[420px] h-[620px] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50 flex flex-col font-sans">
+    <div className="legal-intake-widget w-full h-screen bg-white flex flex-col font-sans">
       {/* ── Header ── */}
       <div className="bg-gradient-to-r from-slate-900 to-blue-900 p-4 text-white flex justify-between items-center shrink-0">
         <div>
           <h2 className="text-lg font-semibold tracking-tight">Legal Consultation</h2>
           <p className="text-blue-300 text-xs">AI-Powered Intake Assistant</p>
         </div>
-        <button onClick={() => setIsOpen(false)} className="text-blue-300 hover:text-white transition-colors p-1">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
       </div>
 
       {/* ── FORM SCREEN ── */}
