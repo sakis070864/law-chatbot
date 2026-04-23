@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>n8n Style Data Flow</title>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .canvas {
+            position: relative;
+            width: 1300px;
+            height: 600px;
+        }
+
+        .node {
+            position: absolute;
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            width: 220px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .node:hover {
+            transform: scale(1.05);
+            border-color: #38bdf8;
+        }
+
+        .node-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .node-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .bg-orange { background: #ea580c; }
+        .bg-blue { background: #0284c7; }
+        .bg-purple { background: #7e22ce; }
+        .bg-green { background: #16a34a; }
+        .bg-red { background: #dc2626; }
+
+        .node-desc {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* SVG Pipes */
+        .pipes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .pipe-path {
+            fill: none;
+            stroke: #334155;
+            stroke-width: 6;
+            stroke-linecap: round;
+        }
+
+        /* The "Liquid" Animation */
+        .liquid {
+            fill: none;
+            stroke: #38bdf8;
+            stroke-width: 6;
+            stroke-linecap: round;
+            stroke-dasharray: 20 80;
+            animation: flow 1.5s linear infinite;
+            filter: drop-shadow(0 0 8px #38bdf8);
+        }
+
+        @keyframes flow {
+            from {
+                stroke-dashoffset: 100;
+            }
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* Positions - Sequential Flow */
+        #node-user { top: 250px; left: 50px; }
+        #node-gemini { top: 250px; left: 370px; }
+        #node-chat { top: 250px; left: 690px; }
+        #node-email { top: 130px; left: 1010px; }
+        #node-clio { top: 370px; left: 1010px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="canvas">
+        <!-- SVG Canvas for Pipes -->
+        <svg class="pipes" viewBox="0 0 1300 600">
+            <!-- User to Gemini -->
+            <path class="pipe-path" d="M 270 300 L 370 300" />
+            <path class="liquid" d="M 270 300 L 370 300" />
+            
+            <!-- Gemini to Chat -->
+            <path class="pipe-path" d="M 590 300 L 690 300" />
+            <path class="liquid" d="M 590 300 L 690 300" />
+            
+            <!-- Chat to Email -->
+            <path class="pipe-path" d="M 910 280 C 960 280, 960 180, 1010 180" />
+            <path class="liquid" d="M 910 280 C 960 280, 960 180, 1010 180" />
+            
+            <!-- Chat to Clio -->
+            <path class="pipe-path" d="M 910 320 C 960 320, 960 420, 1010 420" />
+            <path class="liquid" d="M 910 320 C 960 320, 960 420, 1010 420" style="animation-delay: 0.5s;" />
+        </svg>
+
+        <!-- Nodes -->
+        <div id="node-user" class="node">
+            <div class="node-header">
+                <div class="node-icon bg-orange">🧑</div>
+                Widget / Client
+            </div>
+            <div class="node-desc">Inputs details, selects Practice Area & provides Brief Description (e.g. Car Accident).</div>
+        </div>
+
+        <div id="node-gemini" class="node">
+            <div class="node-header">
+                <div class="node-icon bg-purple">🧠</div>
+                Gemini Grounding
+            </div>
+            <div class="node-desc">Searches Google based on Practice Area + Description to fetch 20 specific questions.</div>
+        </div>
+
+        <div id="node-chat" class="node">
+            <div class="node-header">
+                <div class="node-icon bg-blue">💬</div>
+                AI Interviewer
+            </div>
+            <div class="node-desc">Conducts the interview dynamically using the fetched questions and generates the final Summary.</div>
+        </div>
+
+        <div id="node-email" class="node">
+            <div class="node-header">
+                <div class="node-icon bg-red">📧</div>
+                Nodemailer
+            </div>
+            <div class="node-desc">Delivers the Summary directly to your Gmail Inbox securely.</div>
+        </div>
+
+        <div id="node-clio" class="node">
+            <div class="node-header">
+                <div class="node-icon bg-green">🏛️</div>
+                Clio CRM
+            </div>
+            <div class="node-desc">Creates a new Matter Note with the generated Report.</div>
+        </div>
+    </div>
+
+</body>
+</html>
