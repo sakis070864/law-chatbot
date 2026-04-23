@@ -254,13 +254,12 @@ IMPORTANT RULES:
   // ── MAIN WIDGET (Full Screen) ──
 
   return (
-    <div className="legal-intake-widget w-full h-screen bg-white flex flex-col font-sans">
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-100 to-blue-50 flex items-center justify-center p-4 font-sans">
+      <div className="legal-intake-widget w-full max-w-[440px] h-[650px] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col">
       {/* ── Header ── */}
-      <div className="bg-gradient-to-r from-slate-900 to-blue-900 p-4 text-white flex justify-between items-center shrink-0">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight">Legal Consultation</h2>
-          <p className="text-blue-300 text-xs">AI-Powered Intake Assistant</p>
-        </div>
+      <div className="bg-gradient-to-r from-slate-900 to-blue-900 p-4 text-white shrink-0">
+        <h2 className="text-lg font-semibold tracking-tight">Legal Consultation</h2>
+        <p className="text-blue-300 text-xs">AI-Powered Intake Assistant</p>
       </div>
 
       {/* ── FORM SCREEN ── */}
@@ -560,6 +559,7 @@ IMPORTANT RULES:
           </button>
         </div>
       )}
+    </div>
     </div>
   );
 }
